@@ -1,5 +1,6 @@
 # MIT License
 # 
+# Copyright (c) 2020 SungKyunKwan University
 # Copyright (c) 2019 The University of Texas at Austin
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,8 +21,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 # 
-# Author(s) : Esha Choukse
+# Author(s) : Jungrae Kim
+#           : Esha Choukse
 
 all:
-	g++-4.8 -g -O3 --std=c++11 -lm main.cc -o vsc
-#	g++-4.8 -g -O3 --std=c++11 -lm main.cc lzw_v6.cpp -o vsc
+	g++ -g -O3 --std=c++11 -lm main.cc -o vsc
+#	g++ -g -O3 --std=c++11 -lm main.cc lzw_v6.cpp -o vsc
