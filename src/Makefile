@@ -1,6 +1,5 @@
 # MIT License
 # 
-# Copyright (c) 2020 SungKyunKwan University
 # Copyright (c) 2019 The University of Texas at Austin
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,12 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 # 
-# Author(s) : Jungrae Kim
-#           : Esha Choukse
+# Author(s) : Esha Choukse
 
- Bit-Plane Compression
- Please cite https://ieeexplore.ieee.org/document/7551404 or https://dl.acm.org/citation.cfm?id=3001172 upon usage.
- Make: make
- Usage : ./vsc 1 <filenames of the binary memory snapshots/files --- Can be multiple>
- The 1 in the commandline chooses the block_frag as present in common.hh
- Page-level packing is switched on by default, search "PAGE PACKING" in main.cc for disabling
+all:
+	g++-4.8 -g -O3 --std=c++11 -lm main.cc -o vsc
+#	g++-4.8 -g -O3 --std=c++11 -lm main.cc lzw_v6.cpp -o vsc
