@@ -1,5 +1,6 @@
 // MIT License
 // 
+// Copyright (c) 2020 SungKyunKwan University
 // Copyright (c) 2019 The University of Texas at Austin
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,7 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Author(s) : Esha Choukse
+// Author(s) : Jungrae Kim
+//           : Esha Choukse
 
 #ifndef __FPCOMPRESSOR_HH__
 #define __FPCOMPRESSOR_HH__

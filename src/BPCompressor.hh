@@ -1,26 +1,28 @@
-//MIT License
+// MIT License
 //
-//Copyright (c) 2019 The University of Texas at Austin
+// Copyright (c) 2020 SungKyunKwan University
+// Copyright (c) 2019 The University of Texas at Austin
 //
-//Permission is hereby granted, free of charge, to any person obtaining a copy
-//of this software and associated documentation files (the "Software"), to deal
-//in the Software without restriction, including without limitation the rights
-//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-//copies of the Software, and to permit persons to whom the Software is
-//furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-//The above copyright notice and this permission notice shall be included in all
-//copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
 //
-//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-//SOFTWARE.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //
-//Author(s) : Esha Choukse
+// Author(s) : Jungrae Kim
+//           : Esha Choukse
 
 
 #ifndef __BP_COMPRESSOR_HH__
@@ -72,7 +74,7 @@ public:
             DBX[j] = buf^prevDBP;
             prevDBP = buf;
         }
-        
+
         // first 32-bit word in original form
         unsigned blkLength = encodeFirst(line->s_qword[0]);
         blkLength += encodeDeltas(DBP, DBX);
@@ -269,7 +271,7 @@ public:
 
         if (bp_mode==0) {           // no BP
             bp_result = diff_result;
-        } else if (bp_mode==4) {    
+        } else if (bp_mode==4) {
             for (int j=31; j>=0; j--) {
                 INT32 bufBP = 0;
                 INT32 bufDBP = 0;
@@ -335,8 +337,8 @@ public:
         unsigned blkLength = 0;
         if (code_mode==10) {
             blkLength = encode_paper(&dbx_buffer, &dbp_buffer, line);
-        } 
-	else if (code_mode==11) {
+        }
+        else if (code_mode==11) {
             if (((diff_buffer.dword[0])&0xFFFFFF00)==0) {   // {2'b10,8bit}
                 blkLength += 10;
             } else if (((diff_buffer.dword[0])&0xFFFF0000)==0) {    // {2'b11,16-bit}
@@ -349,19 +351,19 @@ public:
 
 //Fragmentation as per cache block size
 
-	if(frag_mode<4) {
-		for (int i=1; i<sizeof(block_sizes[frag_mode]); i++) {
-			if(blkLength > block_sizes[frag_mode][i]) {
-				blkLength = block_sizes[frag_mode][i-1];
-				break;
-			}
-			if(i== sizeof(block_sizes[frag_mode])-1)
-				blkLength = block_sizes[frag_mode][i];
-		}
-	}
-	
-	if (blkLength > LSIZE)
-		blkLength = LSIZE; 
+        if(frag_mode<4) {
+            for (int i=1; i<sizeof(block_sizes[frag_mode]); i++) {
+                if(blkLength > block_sizes[frag_mode][i]) {
+                    blkLength = block_sizes[frag_mode][i-1];
+                    break;
+                }
+                if(i== sizeof(block_sizes[frag_mode])-1)
+                    blkLength = block_sizes[frag_mode][i];
+            }
+        }
+
+        if (blkLength > LSIZE)
+            blkLength = LSIZE;
         countLineResult(blkLength);
 
         return blkLength;
@@ -375,7 +377,6 @@ public:
         unsigned length = 0;
         run_length = 0;
         for (int i=_MAX_DWORDS_PER_LINE-1; i>=0; i--) {
-	
             if (dbx->dword[i]==0) {
                 run_length++;
             }
@@ -388,61 +389,60 @@ public:
                 run_length = 0;
 //ESHA
 //MIKE: 2/14/19, Removing Line Bug
-		if(false && line->dword[i]==0) {
-		    length += 1;
-		    countPattern(512);
-		}
+                if(false && line->dword[i]==0) {
+                    length += 1;
+                    countPattern(512);
+                }
                 else {
-		    length += 1;
-		if (dbx->dword[i]==1) {
-                    length += 3;
-                    countPattern(32);
-                } else if (dbp->dword[i]==0) {
-                    length += 4;
-                    countPattern(33);
-                } else if (dbx->dword[i]==0xffffffff) {
-                    length += 7;
-                    countPattern(34);
-                } else if (dbx->dword[i]==0xfffffffe) {
-                    length += 9;
-                    countPattern(35);
-                } else {
-                    int oneCnt = 0;
-                    for (int j=0; j<32; j++) {
-                        if ((dbx->dword[i]>>j)&1) {
-                            oneCnt++;
-                        }
-                    }
-                    unsigned two_distance = 0;
-                    int firstPos = -1;
-                    if (oneCnt<=2) {
+                    length += 1;
+                    if (dbx->dword[i]==1) {
+                        length += 3;
+                        countPattern(32);
+                    } else if (dbp->dword[i]==0) {
+                        length += 4;
+                        countPattern(33);
+                    } else if (dbx->dword[i]==0xffffffff) {
+                        length += 7;
+                        countPattern(34);
+                    } else if (dbx->dword[i]==0xfffffffe) {
+                        length += 9;
+                        countPattern(35);
+                    } else {
+                        int oneCnt = 0;
                         for (int j=0; j<32; j++) {
                             if ((dbx->dword[i]>>j)&1) {
-                                if (firstPos==-1) {
-                                    firstPos = j;
-                                } else {
-                                    two_distance = j - firstPos;
+                                oneCnt++;
+                            }
+                        }
+                        unsigned two_distance = 0;
+                        int firstPos = -1;
+                        if (oneCnt<=2) {
+                            for (int j=0; j<32; j++) {
+                                if ((dbx->dword[i]>>j)&1) {
+                                    if (firstPos==-1) {
+                                        firstPos = j;
+                                    } else {
+                                        two_distance = j - firstPos;
+                                    }
                                 }
                             }
                         }
-                    }
-                    if (oneCnt==1) {
-                        length += 10;
-                        countPattern(64+firstPos);
-                    } else if ((oneCnt==2) && (firstPos==0)) {
-                        length += 9;
-                        countPattern(96+firstPos);
-                    } else if ((oneCnt==2) && (two_distance==1)) {
-                        length += 11;
-                        countPattern(128+firstPos);
-                    } else {
-                        length += 33;
-                        countPattern(36);
+                        if (oneCnt==1) {
+                            length += 10;
+                            countPattern(64+firstPos);
+                        } else if ((oneCnt==2) && (firstPos==0)) {
+                            length += 9;
+                            countPattern(96+firstPos);
+                        } else if ((oneCnt==2) && (two_distance==1)) {
+                            length += 11;
+                            countPattern(128+firstPos);
+                        } else {
+                            length += 33;
+                            countPattern(36);
+                        }
                     }
                 }
-		}
             }
-
         }
         if (run_length>0) {
             length += ZRL_CODE_SIZE[run_length];
@@ -562,7 +562,7 @@ public:
                 prevDBP = buf;
             }
         }
-        
+
         // first 32-bit word in original form
         unsigned blkLength = encodeFirst(line->dword[0]);
         blkLength += encodeDeltas(DBP, DBX);
@@ -733,167 +733,167 @@ public:
 };
 
 class BPSCompressor64 : public ECompressor {
-	public:
-		BPSCompressor64(const string name, int diff, int bp, int code, int fragblocks)
-			: ECompressor(name), diff_mode(diff), bp_mode(bp), code_mode(code), frag_mode(fragblocks){}
-		~BPSCompressor64() {}
-	public:
-		void reset() {
-			ECompressor::reset();
+    public:
+        BPSCompressor64(const string name, int diff, int bp, int code, int fragblocks)
+            : ECompressor(name), diff_mode(diff), bp_mode(bp), code_mode(code), frag_mode(fragblocks){}
+        ~BPSCompressor64() {}
+    public:
+        void reset() {
+            ECompressor::reset();
 
-			prev_zero = true;
-			prev_data = 0;
-			prev_delta = 0;
-			prev_line = {};
+            prev_zero = true;
+            prev_data = 0;
+            prev_delta = 0;
+            prev_line = {};
 
-			run_length = 0;
-			run_length_orig = 0;
-		}
+            run_length = 0;
+            run_length_orig = 0;
+        }
 
-		CACHELINE_DATA* transform(CACHELINE_DATA* line, CACHELINE_DATA &buffer) {
-			if (diff_mode==2) {       // XOR
-				for (int i=0; i<_MAX_DWORDS_PER_LINE; i++) {
-					buffer.dword[i] = (line->dword[i] ^ prev_data);
-					prev_data = line->dword[i];
-				}
-			}
-			return &buffer;
-		}
-		unsigned compressLine(CACHELINE_DATA* line, UINT64 line_addr) {
-			CACHELINE_DATA diff_buffer;
-			CACHELINE_DATA *diff_result = transform(line, diff_buffer);
+        CACHELINE_DATA* transform(CACHELINE_DATA* line, CACHELINE_DATA &buffer) {
+            if (diff_mode==2) {       // XOR
+                for (int i=0; i<_MAX_DWORDS_PER_LINE; i++) {
+                    buffer.dword[i] = (line->dword[i] ^ prev_data);
+                    prev_data = line->dword[i];
+                }
+            }
+            return &buffer;
+        }
+        unsigned compressLine(CACHELINE_DATA* line, UINT64 line_addr) {
+            CACHELINE_DATA diff_buffer;
+            CACHELINE_DATA *diff_result = transform(line, diff_buffer);
 
-			// BP mode
-			//TODO: These sizes need to be changed for a smaller cache line size
-			CACHELINE_DATA bp_buffer = {};
-			CACHELINE_DATA dbp_buffer = {};
-			CACHELINE_DATA dbx_buffer = {};
-			CACHELINE_DATA dbx2_buffer = {};
-			CACHELINE_DATA *bp_result = NULL;
+            // BP mode
+            //TODO: These sizes need to be changed for a smaller cache line size
+            CACHELINE_DATA bp_buffer = {};
+            CACHELINE_DATA dbp_buffer = {};
+            CACHELINE_DATA dbx_buffer = {};
+            CACHELINE_DATA dbx2_buffer = {};
+            CACHELINE_DATA *bp_result = NULL;
 
-			if (bp_mode==4) {    
-				for (int j=31; j>=0; j--) {
-					INT32 bufDBP = 0;
-					INT32 bufDBX = 0;
-					for (int i=_MAX_DWORDS_PER_LINE-1; i>=1; i--) {
-						bufDBP  <<= 1;
-						bufDBX  <<= 1;
-						bufDBP  |= ((diff_result->dword[i]>>j)&1);
-						if (j==31) {
-							bufDBX  |= ((diff_result->dword[i]>>j)&1);
-						} else {
-							bufDBX  |= (((diff_result->dword[i]>>j)^(diff_result->dword[i]>>(j+1)))&1);
-						}
-					}
-					dbp_buffer.word[j]  = bufDBP;
-					dbx_buffer.word[j]  = bufDBX;
-				}
-				bp_result = &dbx_buffer;
-			}
-			unsigned blkLength = 0;
-			if (code_mode==10) {
-				blkLength = encode_paper(&dbx_buffer, &dbp_buffer, line);
-			} 
-			countLineResult(blkLength);
+            if (bp_mode==4) {
+                for (int j=31; j>=0; j--) {
+                    INT32 bufDBP = 0;
+                    INT32 bufDBX = 0;
+                    for (int i=_MAX_DWORDS_PER_LINE-1; i>=1; i--) {
+                        bufDBP  <<= 1;
+                        bufDBX  <<= 1;
+                        bufDBP  |= ((diff_result->dword[i]>>j)&1);
+                        if (j==31) {
+                            bufDBX  |= ((diff_result->dword[i]>>j)&1);
+                        } else {
+                            bufDBX  |= (((diff_result->dword[i]>>j)^(diff_result->dword[i]>>(j+1)))&1);
+                        }
+                    }
+                    dbp_buffer.word[j]  = bufDBP;
+                    dbx_buffer.word[j]  = bufDBX;
+                }
+                bp_result = &dbx_buffer;
+            }
+            unsigned blkLength = 0;
+            if (code_mode==10) {
+                blkLength = encode_paper(&dbx_buffer, &dbp_buffer, line);
+            }
+            countLineResult(blkLength);
 
-			return blkLength;
-		}
+            return blkLength;
+        }
 
-		unsigned encode_paper(CACHELINE_DATA *dbx, CACHELINE_DATA *dbp, CACHELINE_DATA *line) {
-			//static const unsigned ZRL_CODE_SIZE[33] = {0, 4, 8, 6, 8, 11, 7, 7, 9, 10, 9, 8, 9, 9, 10, 10, 10, 11, 9, 9, 10, 5, 8, 9, 10, 11, 11, 6, 9, 7, 10, 8, 10};
+        unsigned encode_paper(CACHELINE_DATA *dbx, CACHELINE_DATA *dbp, CACHELINE_DATA *line) {
+            //static const unsigned ZRL_CODE_SIZE[33] = {0, 4, 8, 6, 8, 11, 7, 7, 9, 10, 9, 8, 9, 9, 10, 10, 10, 11, 9, 9, 10, 5, 8, 9, 10, 11, 11, 6, 9, 7, 10, 8, 10};
 
-			//static const unsigned ZRL_CODE_SIZE[33] = {0, 4, 6, 7, 8, 9, 6, 10, 12, 12, 8, 8, 9, 10, 9, 11, 11, 9, 9, 9, 10, 11, 10, 9, 7, 8, 8, 5, 7, 11, 10, 11, 8};
+            //static const unsigned ZRL_CODE_SIZE[33] = {0, 4, 6, 7, 8, 9, 6, 10, 12, 12, 8, 8, 9, 10, 9, 11, 11, 9, 9, 9, 10, 11, 10, 9, 7, 8, 8, 5, 7, 11, 10, 11, 8};
 
-			static const unsigned ZRL_CODE_SIZE[17] = {0, 4, 6, 7, 8, 7, 6, 8, 8, 8, 8, 9, 9, 9, 9, 7, 5 };
-		//	static const unsigned ZRL_CODE_SIZE[17] = {0, 3, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7 };
-			unsigned length = 0;
-			run_length = 0;
-			run_length_orig = 0;
-			for (int i=_MAX_DWORDS_PER_LINE-1; i>=0; i--) {
+            static const unsigned ZRL_CODE_SIZE[17] = {0, 4, 6, 7, 8, 7, 6, 8, 8, 8, 8, 9, 9, 9, 9, 7, 5 };
+            //	static const unsigned ZRL_CODE_SIZE[17] = {0, 3, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7 };
+            unsigned length = 0;
+            run_length = 0;
+            run_length_orig = 0;
+            for (int i=_MAX_DWORDS_PER_LINE-1; i>=0; i--) {
 
-				if (dbx->dword[i]==0) {
-					run_length++;
-				}
-				else if((run_length==0) && (line->dword[i]==0)){
-					run_length_orig++;
-				}
-				else {
-					if ((run_length>0) || (run_length_orig>0)) {
-						int run_len = run_length+run_length_orig;
-						countPattern(run_len-1);
-						length += ZRL_CODE_SIZE[run_len] + 1; //ESHA
-					}
-					run_length = 0;
-					run_length_orig = 0;
-					//ESHA
-					if(line->dword[i]==0) {
-						run_length_orig++;
-					}
-					else {
-						if (dbp->dword[i]==0) {
-							length += 5;
-							countPattern(33);
-						} else if (dbx->dword[i]==0xffffffff) {
-							length += 5;
-							countPattern(34);
-						} else {
-							int oneCnt = 0;
-							for (int j=0; j<32; j++) {
-								if ((dbx->dword[i]>>j)&1) {
-									oneCnt++;
-								}
-							}
-							unsigned two_distance = 0;
-							int firstPos = -1;
-							if (oneCnt<=2) {
-								for (int j=0; j<32; j++) {
-									if ((dbx->dword[i]>>j)&1) {
-										if (firstPos==-1) {
-											firstPos = j;
-										} else {
-											two_distance = j - firstPos;
-										}
-									}
-								}
-							}
-							if (oneCnt==1) {
-								length += 10;
-								countPattern(64+firstPos);
-							} else if ((oneCnt==2) && (two_distance==1)) {
-								length += 10;
-								countPattern(128+firstPos);
-							} else {
-								length += 32;
-								countPattern(36);
-							}
-						}
-					}
-				}
+                if (dbx->dword[i]==0) {
+                    run_length++;
+                }
+                else if((run_length==0) && (line->dword[i]==0)){
+                    run_length_orig++;
+                }
+                else {
+                    if ((run_length>0) || (run_length_orig>0)) {
+                        int run_len = run_length+run_length_orig;
+                        countPattern(run_len-1);
+                        length += ZRL_CODE_SIZE[run_len] + 1; //ESHA
+                    }
+                    run_length = 0;
+                    run_length_orig = 0;
+                    //ESHA
+                    if(line->dword[i]==0) {
+                        run_length_orig++;
+                    }
+                    else {
+                        if (dbp->dword[i]==0) {
+                            length += 5;
+                            countPattern(33);
+                        } else if (dbx->dword[i]==0xffffffff) {
+                            length += 5;
+                            countPattern(34);
+                        } else {
+                            int oneCnt = 0;
+                            for (int j=0; j<32; j++) {
+                                if ((dbx->dword[i]>>j)&1) {
+                                    oneCnt++;
+                                }
+                            }
+                            unsigned two_distance = 0;
+                            int firstPos = -1;
+                            if (oneCnt<=2) {
+                                for (int j=0; j<32; j++) {
+                                    if ((dbx->dword[i]>>j)&1) {
+                                        if (firstPos==-1) {
+                                            firstPos = j;
+                                        } else {
+                                            two_distance = j - firstPos;
+                                        }
+                                    }
+                                }
+                            }
+                            if (oneCnt==1) {
+                                length += 10;
+                                countPattern(64+firstPos);
+                            } else if ((oneCnt==2) && (two_distance==1)) {
+                                length += 10;
+                                countPattern(128+firstPos);
+                            } else {
+                                length += 32;
+                                countPattern(36);
+                            }
+                        }
+                    }
+                }
 
-			}
-			if ((run_length>0)||(run_length_orig>0)) {
-				int run_len = run_length+run_length_orig;
-				length += ZRL_CODE_SIZE[run_len]+1;
-				countPattern(run_len-1);
-			}
-			if(run_length==16 || run_length_orig==16){
-				length = 0;	
-			}
-		//	cout << " " << length;
-			return length;
-		}
-	protected:
-		// zero run length counters
-		int diff_mode;
-		int bp_mode;
-		int code_mode;
-		int frag_mode;
+            }
+            if ((run_length>0)||(run_length_orig>0)) {
+                int run_len = run_length+run_length_orig;
+                length += ZRL_CODE_SIZE[run_len]+1;
+                countPattern(run_len-1);
+            }
+            if(run_length==16 || run_length_orig==16){
+                    length = 0;	
+            }
+            //	cout << " " << length;
+            return length;
+        }
+    protected:
+        // zero run length counters
+        int diff_mode;
+        int bp_mode;
+        int code_mode;
+        int frag_mode;
 
-		INT32 prev_data;
-		INT32 prev_delta;
-		CACHELINE_DATA prev_line;
-		int run_length, run_length_orig;
-		bool prev_zero;
+        INT32 prev_data;
+        INT32 prev_delta;
+        CACHELINE_DATA prev_line;
+        int run_length, run_length_orig;
+        bool prev_zero;
 };
 
 #endif /* __BP_COMPRESSOR_HH__ */
